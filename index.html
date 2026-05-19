@@ -1399,7 +1399,7 @@
       padding: 0;
     }
 
-    /* Each major section starts on a new page */
+    /* Each major section: force page break, full bleed, constrain to page */
     .toc-page,
     .bio-page,
     .timeline-page,
@@ -1409,11 +1409,14 @@
     .footer {
       page-break-before: always;
       break-before: page;
-      width: 17in;
-      height: 11in;
+      width: 17in !important;
+      height: 11in !important;
       box-sizing: border-box;
-      margin: 0;
-      overflow: hidden;
+      margin: 0 !important;
+      padding: 80px !important;
+      overflow: hidden !important;
+      display: flex;
+      flex-direction: column;
     }
 
     /* Avoid breaking inside these elements */
@@ -1435,6 +1438,8 @@
     .img-asym {
       page-break-inside: avoid;
       break-inside: avoid;
+      max-height: 8in;
+      object-fit: cover;
     }
 
     /* Hide placeholder boxes in print */
@@ -1444,20 +1449,6 @@
 
     /* Ensure links are readable in print */
     a { color: inherit; text-decoration: none; }
-
-    /* Full-bleed padding — scale to fit page */
-    .toc-page,
-    .bio-page,
-    .timeline-page,
-    .project-page,
-    .works-page,
-    .software-page {
-      padding: 80px;
-    }
-
-    .footer {
-      padding: 80px;
-    }
 
     /* All images constrained */
     img { 
@@ -1479,6 +1470,27 @@
     /* Suppress overflow on timeline rows */
     .tl-row, .tl-role-row, .tl-edu-row, .tl-dot-row {
       overflow: hidden;
+    }
+
+    /* Reduce font sizes slightly to fit more content */
+    body {
+      font-size: 13px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+    }
+
+    h2 {
+      font-size: 28px;
+    }
+
+    .bio-opener {
+      font-size: 18px;
+    }
+
+    .bio-body {
+      font-size: 14px;
     }
   }
 
