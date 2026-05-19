@@ -1351,25 +1351,26 @@
   @media print {
     @page {
       size: 17in 11in landscape;
-      margin: 0.5in;
+      margin: 0;
     }
 
     html, body {
-      width: 100%;
-      height: 100%;
+      width: 17in;
+      height: 11in;
       margin: 0;
       padding: 0;
-      overflow: visible;
+      overflow: hidden;
     }
 
     body {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
       font-size: 14px;
-      overflow: visible;
+      width: 17in;
+      height: 11in;
     }
 
-    /* Hide page rules between sections — they create empty space */
+    /* Hide page rules between sections */
     .page-rule {
       display: none !important;
       height: 0 !important;
@@ -1387,33 +1388,32 @@
       transform: none !important;
     }
 
-    /* Cover fills one page */
+    /* Cover fills one page — full bleed */
     .cover {
-      width: 100%;
-      height: 100%;
+      width: 17in;
+      height: 11in;
       page-break-after: always;
       break-after: page;
       overflow: hidden;
+      margin: 0;
+      padding: 0;
     }
 
     /* Each major section starts on a new page */
     .toc-page,
     .bio-page,
-    .timeline-page {
-      page-break-before: always;
-      break-before: page;
-    }
-
-    .project-page {
-      page-break-before: always;
-      break-before: page;
-    }
-
+    .timeline-page,
+    .project-page,
     .works-page,
     .software-page,
     .footer {
       page-break-before: always;
       break-before: page;
+      width: 17in;
+      height: 11in;
+      box-sizing: border-box;
+      margin: 0;
+      overflow: hidden;
     }
 
     /* Avoid breaking inside these elements */
@@ -1445,18 +1445,18 @@
     /* Ensure links are readable in print */
     a { color: inherit; text-decoration: none; }
 
-    /* Print padding — consistent across pages */
+    /* Full-bleed padding — scale to fit page */
     .toc-page,
     .bio-page,
     .timeline-page,
     .project-page,
     .works-page,
-    .software-page,
+    .software-page {
+      padding: 80px;
+    }
+
     .footer {
-      padding: 0.5in;
-      width: 100%;
-      box-sizing: border-box;
-      overflow: visible;
+      padding: 80px;
     }
 
     /* All images constrained */
