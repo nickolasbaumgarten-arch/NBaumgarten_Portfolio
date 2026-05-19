@@ -1346,215 +1346,81 @@
   }
 
   /* ═══════════════════════════════════════════
-     PRINT — clean PDF output @ 11 × 17 in
+     PRINT STYLES
+     Strategy: JS wraps every section in a
+     .print-page shell (1632px × 1056px = 17×11in
+     at 96dpi). CSS scales each shell to fill the
+     @page exactly. No content is clipped; each
+     section becomes one PDF spread.
   ═══════════════════════════════════════════ */
+
+  /* Print-page wrapper — hidden on screen */
+  .print-page {
+    display: none;
+  }
+
   @media print {
+
     @page {
       size: 17in 11in landscape;
-      margin: 0 !important;
-      padding: 0 !important;
+      margin: 0;
     }
 
-    * {
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
+    /* Kill screen body chrome */
     html, body {
-      width: 17in !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      overflow: visible !important;
-      height: auto !important;
-    }
-
-    body {
+      margin: 0;
+      padding: 0;
+      background: white;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      font-size: 14px;
     }
 
-    /* Hide page rules between sections */
-    .page-rule {
+    /* Hide the raw sections — JS has already
+       cloned them into .print-page wrappers    */
+    body > .cover,
+    body > .page-rule,
+    body > .toc-page,
+    body > .bio-page,
+    body > .timeline-page,
+    body > .project-page,
+    body > .works-page,
+    body > .software-page,
+    body > .footer {
       display: none !important;
-      height: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border: none !important;
-      page-break-after: always;
     }
 
-    /* No animations in print */
-    .cover-name,
-    .cover-descriptor,
-    .cover-meta {
+    /* Show the wrapper divs JS created */
+    .print-page {
+      display: block;
+      width: 17in;
+      height: 11in;
+      overflow: hidden;
+      position: relative;
+      page-break-after: always;
+      break-after: page;
+      box-sizing: border-box;
+    }
+
+    /* The cloned section sits inside, scaled to fit */
+    .print-page > .print-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: top left;
+      /* width/height and scale set by JS per section */
+    }
+
+    /* Disable animations */
+    * {
       animation: none !important;
+      transition: none !important;
+    }
+    .cover-name, .cover-descriptor, .cover-meta {
       opacity: 1 !important;
       transform: none !important;
     }
 
-    /* Cover — full bleed, forces page break after */
-    .cover {
-      width: 17in !important;
-      height: 11in !important;
-      page-break-after: always;
-      break-after: page;
-      overflow: hidden !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      box-sizing: border-box !important;
-    }
-
-    /* Each page section — CRITICAL: height must fit within 11in */
-    .toc-page,
-    .bio-page,
-    .timeline-page,
-    .project-page,
-    .works-page,
-    .software-page,
-    .footer {
-      width: 17in !important;
-      max-height: 11in !important;
-      page-break-before: always !important;
-      break-before: page !important;
-      page-break-after: always !important;
-      break-after: page !important;
-      box-sizing: border-box !important;
-      margin: 0 !important;
-      padding: 72px !important;
-      overflow: hidden !important;
-      display: block !important;
-      position: relative !important;
-    }
-
-    /* Content wrappers — prevent overflow */
-    .toc-page > *,
-    .bio-page > *,
-    .timeline-page > *,
-    .project-page > *,
-    .works-page > *,
-    .software-page > *,
-    .footer > * {
-      margin: 0 !important;
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-    }
-
-    /* Text elements — no extra spacing */
-    p, h1, h2, h3, h4, h5, h6 {
-      margin: 0 0 0.5rem 0 !important;
-      padding: 0 !important;
-      page-break-inside: avoid !important;
-    }
-
-    /* Avoid breaking inside these elements */
-    .project-eyebrow,
-    .project-title-block,
-    .project-facts,
-    .toc-item,
-    .works-row,
-    .sw-item,
-    .award-line,
-    .bio-meta-block {
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    /* Images constrained to fit */
-    img { 
-      max-width: calc(17in - 144px) !important;
-      max-height: 7in !important;
-      height: auto !important;
-      display: block !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    .img-full,
-    .img-pair,
-    .img-asym {
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-      max-height: 7in !important;
-      overflow: hidden !important;
-    }
-
-    /* Hide placeholder boxes in print */
-    .project-placeholder-img {
-      min-height: 300px;
-    }
-
-    /* Ensure links are readable in print */
-    a { 
-      color: inherit !important; 
-      text-decoration: none !important; 
-    }
-
-    /* Reduce font sizes to fit content */
-    body {
-      font-size: 13px;
-    }
-
-    h1 {
-      font-size: 42px !important;
-      margin: 0 0 0.3rem 0 !important;
-    }
-
-    h2 {
-      font-size: 26px !important;
-      margin: 0 0 0.3rem 0 !important;
-    }
-
-    h3 {
-      font-size: 16px !important;
-      margin: 0 0 0.2rem 0 !important;
-    }
-
-    .bio-opener {
-      font-size: 18px !important;
-      margin: 0 0 0.5rem 0 !important;
-    }
-
-    .bio-body {
-      font-size: 13px !important;
-      margin: 0 0 0.3rem 0 !important;
-      line-height: 1.4 !important;
-    }
-
-    /* Project body grid */
-    .project-body-grid {
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) !important;
-      gap: 20px !important;
-    }
-
-    /* SW grid two columns */
-    .sw-grid {
-      grid-template-columns: 1fr 1fr !important;
-      gap: 20px !important;
-    }
-
-    /* Suppress overflow on timeline rows */
-    .tl-row, .tl-role-row, .tl-edu-row, .tl-dot-row {
-      overflow: hidden !important;
-      margin: 0 !important;
-      padding: 0 !important;
-    }
-
-    /* Reduce spacing throughout */
-    ul, ol {
-      margin: 0 !important;
-      padding-left: 20px !important;
-    }
-
-    li {
-      margin: 0 0 0.2rem 0 !important;
-    }
-
-    div {
-      margin: 0 !important;
-    }
+    a { color: inherit; text-decoration: none; }
   }
 
 </style>
@@ -2207,5 +2073,109 @@
   <div class="footer-year">2026</div>
 </footer>
 
+<script>
+  /**
+   * PRINT PREPARATION
+   * ─────────────────────────────────────────────────────────────
+   * Strategy: Before the browser opens the print dialog, we clone
+   * every section into a fixed-size .print-page shell (1632 × 1056px
+   * = 17in × 11in at 96dpi). Each shell is scaled so its content
+   * fills the page exactly — no clipping, no overflow, no blank pages.
+   *
+   * To update: just edit the HTML sections normally. The script
+   * auto-discovers every section and scales it to fit.
+   * ─────────────────────────────────────────────────────────────
+   */
+
+  (function () {
+
+    // 17in × 11in at 96 dpi
+    var PAGE_W = 1632;
+    var PAGE_H = 1056;
+
+    // Selectors that each become one printed page, in order
+    var SECTION_SEL = [
+      '.cover',
+      '.toc-page',
+      '.bio-page',
+      '.timeline-page',
+      '.project-page',
+      '.works-page',
+      '.software-page',
+      '.footer'
+    ];
+
+    var container; // holds all .print-page divs
+
+    function buildPrintPages() {
+      // Remove any previously built container
+      var old = document.getElementById('print-container');
+      if (old) old.parentNode.removeChild(old);
+
+      container = document.createElement('div');
+      container.id = 'print-container';
+      document.body.appendChild(container);
+
+      // Gather sections in DOM order
+      var sections = [];
+      SECTION_SEL.forEach(function (sel) {
+        document.querySelectorAll(sel).forEach(function (el) {
+          sections.push(el);
+        });
+      });
+
+      sections.forEach(function (section) {
+        // Measure the section at its natural screen size
+        var rect = section.getBoundingClientRect();
+        var naturalW = rect.width  || section.offsetWidth  || PAGE_W;
+        var naturalH = rect.height || section.offsetHeight || PAGE_H;
+
+        // Scale to fill the page (fit, not crop)
+        var scaleX = PAGE_W / naturalW;
+        var scaleY = PAGE_H / naturalH;
+        var scale  = Math.min(scaleX, scaleY);
+
+        // Clone the section (deep clone with styles)
+        var clone = section.cloneNode(true);
+        clone.removeAttribute('id');
+
+        // Inner wrapper carries the scale transform
+        var inner = document.createElement('div');
+        inner.className = 'print-inner';
+        inner.style.width  = naturalW + 'px';
+        inner.style.height = naturalH + 'px';
+        inner.style.transform = 'scale(' + scale + ')';
+        inner.style.transformOrigin = 'top left';
+        inner.appendChild(clone);
+
+        // Outer .print-page is exactly one PDF page
+        var page = document.createElement('div');
+        page.className = 'print-page';
+        page.appendChild(inner);
+
+        container.appendChild(page);
+      });
+    }
+
+    // Build pages just before printing
+    window.addEventListener('beforeprint', buildPrintPages);
+
+    // Clean up after printing
+    window.addEventListener('afterprint', function () {
+      var old = document.getElementById('print-container');
+      if (old) old.parentNode.removeChild(old);
+    });
+
+    // Safari / older WebKit fallback via window.onbeforeprint
+    if (window.onbeforeprint !== undefined) {
+      var _orig = window.onbeforeprint;
+      window.onbeforeprint = function (e) {
+        buildPrintPages();
+        if (_orig) _orig(e);
+      };
+    }
+
+  })();
+</script>
 </body>
 </html>
