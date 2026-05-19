@@ -1346,19 +1346,15 @@
   }
 
   /* ═══════════════════════════════════════════
-     PRINT STYLES
-     Strategy: JS wraps every section in a
-     .print-page shell (1632px × 1056px = 17×11in
-     at 96dpi). CSS scales each shell to fill the
-     @page exactly. No content is clipped; each
-     section becomes one PDF spread.
+     PRINT — 17 × 11 in landscape, full bleed
+     ─────────────────────────────────────────
+     STRATEGY:
+     Each section is given an explicit fixed size
+     of 1632 × 1056 px (= 17in × 11in at 96 dpi).
+     The browser prints each section as one page.
+     No JavaScript. No cloning. No scaling tricks.
+     Just CSS that fixes the canvas size at print time.
   ═══════════════════════════════════════════ */
-
-  /* Print-page wrapper — hidden on screen */
-  .print-page {
-    display: none;
-  }
-
   @media print {
 
     @page {
@@ -1366,61 +1362,159 @@
       margin: 0;
     }
 
-    /* Kill screen body chrome */
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: white;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-
-    /* Hide the raw sections — JS has already
-       cloned them into .print-page wrappers    */
-    body > .cover,
-    body > .page-rule,
-    body > .toc-page,
-    body > .bio-page,
-    body > .timeline-page,
-    body > .project-page,
-    body > .works-page,
-    body > .software-page,
-    body > .footer {
-      display: none !important;
-    }
-
-    /* Show the wrapper divs JS created */
-    .print-page {
-      display: block;
-      width: 17in;
-      height: 11in;
-      overflow: hidden;
-      position: relative;
-      page-break-after: always;
-      break-after: page;
-      box-sizing: border-box;
-    }
-
-    /* The cloned section sits inside, scaled to fit */
-    .print-page > .print-inner {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform-origin: top left;
-      /* width/height and scale set by JS per section */
-    }
-
-    /* Disable animations */
     * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
       animation: none !important;
       transition: none !important;
     }
+
+    html {
+      width: 1632px;
+    }
+
+    body {
+      width: 1632px;
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      background: var(--white) !important;
+    }
+
+    /* Disable animations on cover text */
     .cover-name, .cover-descriptor, .cover-meta {
       opacity: 1 !important;
       transform: none !important;
     }
 
-    a { color: inherit; text-decoration: none; }
+    /* Hide section dividers */
+    .page-rule { display: none !important; }
+
+    /* ── Every section = exactly one 17×11 page ── */
+    .cover,
+    .toc-page,
+    .bio-page,
+    .timeline-page,
+    .project-page,
+    .works-page,
+    .software-page,
+    .footer {
+      width: 1632px !important;
+      height: 1056px !important;
+      min-height: unset !important;
+      max-height: 1056px !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      page-break-before: always !important;
+      break-before: page !important;
+      page-break-after: always !important;
+      break-after: page !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+      display: block !important;
+      position: relative !important;
+      margin: 0 !important;
+      padding: 64px !important;
+    }
+
+    /* Cover has no padding — full bleed image */
+    .cover {
+      padding: 0 !important;
+    }
+
+    /* Cover image fills full bleed */
+    .cover-img {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+    }
+
+    /* Cover text positioning */
+    .cover-top {
+      padding: 36px 64px 0 !important;
+    }
+
+    .cover-main {
+      padding: 0 64px 56px !important;
+    }
+
+    /* Scale down clamp-based font sizes for fixed canvas */
+    .cover-name {
+      font-size: 100px !important;
+      line-height: 0.88 !important;
+    }
+
+    .project-title {
+      font-size: 52px !important;
+      line-height: 1.0 !important;
+    }
+
+    .bio-opener {
+      font-size: 28px !important;
+      line-height: 1.3 !important;
+    }
+
+    /* Tighten body text for print */
+    .project-body-text,
+    .bio-body {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+    }
+
+    /* Two-column grids — maintain on print */
+    .bio-page {
+      display: grid !important;
+      grid-template-columns: 1fr 340px !important;
+      gap: 64px !important;
+      align-items: start !important;
+    }
+
+    .project-body-grid {
+      grid-template-columns: 1fr 300px !important;
+      gap: 40px !important;
+    }
+
+    .sw-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 60px !important;
+    }
+
+    .footer {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr !important;
+      align-items: end !important;
+    }
+
+    /* Images — let them size naturally within the fixed canvas */
+    img {
+      max-width: 100% !important;
+      display: block !important;
+    }
+
+    /* Keep img containers from overflowing */
+    .img-full img  { width: 100% !important; max-height: 580px !important; object-fit: cover !important; }
+    .img-pair      { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+    .img-pair img  { width: 100% !important; max-height: 480px !important; object-fit: cover !important; }
+    .img-asym      { display: grid !important; grid-template-columns: 2fr 1fr !important; gap: 8px !important; }
+    .img-asym img  { width: 100% !important; max-height: 480px !important; object-fit: cover !important; }
+
+    /* Timeline rows — no horizontal scroll */
+    .tl-row, .tl-role-row, .tl-edu-row, .tl-dot-row {
+      overflow: hidden !important;
+    }
+
+    /* Placeholder boxes in print — shrink */
+    .project-placeholder-img {
+      min-height: 200px !important;
+    }
+
+    /* Facts strip */
+    .fact-value { font-size: 18px !important; }
+
+    a { color: inherit !important; text-decoration: none !important; }
   }
 
 </style>
@@ -2073,109 +2167,5 @@
   <div class="footer-year">2026</div>
 </footer>
 
-<script>
-  /**
-   * PRINT PREPARATION
-   * ─────────────────────────────────────────────────────────────
-   * Strategy: Before the browser opens the print dialog, we clone
-   * every section into a fixed-size .print-page shell (1632 × 1056px
-   * = 17in × 11in at 96dpi). Each shell is scaled so its content
-   * fills the page exactly — no clipping, no overflow, no blank pages.
-   *
-   * To update: just edit the HTML sections normally. The script
-   * auto-discovers every section and scales it to fit.
-   * ─────────────────────────────────────────────────────────────
-   */
-
-  (function () {
-
-    // 17in × 11in at 96 dpi
-    var PAGE_W = 1632;
-    var PAGE_H = 1056;
-
-    // Selectors that each become one printed page, in order
-    var SECTION_SEL = [
-      '.cover',
-      '.toc-page',
-      '.bio-page',
-      '.timeline-page',
-      '.project-page',
-      '.works-page',
-      '.software-page',
-      '.footer'
-    ];
-
-    var container; // holds all .print-page divs
-
-    function buildPrintPages() {
-      // Remove any previously built container
-      var old = document.getElementById('print-container');
-      if (old) old.parentNode.removeChild(old);
-
-      container = document.createElement('div');
-      container.id = 'print-container';
-      document.body.appendChild(container);
-
-      // Gather sections in DOM order
-      var sections = [];
-      SECTION_SEL.forEach(function (sel) {
-        document.querySelectorAll(sel).forEach(function (el) {
-          sections.push(el);
-        });
-      });
-
-      sections.forEach(function (section) {
-        // Measure the section at its natural screen size
-        var rect = section.getBoundingClientRect();
-        var naturalW = rect.width  || section.offsetWidth  || PAGE_W;
-        var naturalH = rect.height || section.offsetHeight || PAGE_H;
-
-        // Scale to fill the page (fit, not crop)
-        var scaleX = PAGE_W / naturalW;
-        var scaleY = PAGE_H / naturalH;
-        var scale  = Math.min(scaleX, scaleY);
-
-        // Clone the section (deep clone with styles)
-        var clone = section.cloneNode(true);
-        clone.removeAttribute('id');
-
-        // Inner wrapper carries the scale transform
-        var inner = document.createElement('div');
-        inner.className = 'print-inner';
-        inner.style.width  = naturalW + 'px';
-        inner.style.height = naturalH + 'px';
-        inner.style.transform = 'scale(' + scale + ')';
-        inner.style.transformOrigin = 'top left';
-        inner.appendChild(clone);
-
-        // Outer .print-page is exactly one PDF page
-        var page = document.createElement('div');
-        page.className = 'print-page';
-        page.appendChild(inner);
-
-        container.appendChild(page);
-      });
-    }
-
-    // Build pages just before printing
-    window.addEventListener('beforeprint', buildPrintPages);
-
-    // Clean up after printing
-    window.addEventListener('afterprint', function () {
-      var old = document.getElementById('print-container');
-      if (old) old.parentNode.removeChild(old);
-    });
-
-    // Safari / older WebKit fallback via window.onbeforeprint
-    if (window.onbeforeprint !== undefined) {
-      var _orig = window.onbeforeprint;
-      window.onbeforeprint = function (e) {
-        buildPrintPages();
-        if (_orig) _orig(e);
-      };
-    }
-
-  })();
-</script>
 </body>
 </html>
