@@ -1350,7 +1350,7 @@
   ═══════════════════════════════════════════ */
   @media print {
     @page {
-      size: 11in 17in;
+      size: 17in 11in landscape;
       margin: 0;
     }
 
@@ -1358,8 +1358,8 @@
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
       font-size: 14px;
-      width: 11in;
-      max-width: 11in;
+      width: 17in;
+      max-width: 17in;
       overflow-x: hidden;
     }
 
@@ -1374,7 +1374,8 @@
 
     /* Cover fills one page */
     .cover {
-      height: 17in;
+      width: 17in;
+      height: 11in;
       page-break-after: always;
       break-after: page;
     }
@@ -1440,14 +1441,14 @@
 
     .footer {
       padding: 48px 72px;
-      width: 11in;
+      width: 17in;
       box-sizing: border-box;
     }
 
     /* Cover and all page sections: constrain to 11in */
     .cover {
-      width: 11in !important;
-      height: 17in !important;
+      width: 17in !important;
+      height: 11in !important;
       overflow: hidden !important;
     }
 
@@ -1457,7 +1458,7 @@
     .project-page,
     .works-page,
     .software-page {
-      width: 11in;
+      width: 17in;
       box-sizing: border-box;
       overflow: hidden;
     }
