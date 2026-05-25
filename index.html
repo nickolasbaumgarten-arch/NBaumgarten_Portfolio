@@ -73,10 +73,12 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const container = document.getElementById('pdf-container');
-    const loading   = document.getElementById('loading');
-    const error     = document.getElementById('error');
-    const dpr       = window.devicePixelRatio || 1;
+    const container    = document.getElementById('pdf-container');
+    const loading      = document.getElementById('loading');
+    const error        = document.getElementById('error');
+
+    // Render at 3× the display pixels — sharp on all screens including 3x phones
+    const QUALITY      = 3;
 
     async function renderPDF() {
       try {
@@ -88,16 +90,15 @@
           const viewport = page.getViewport({ scale: 1 });
 
           const containerWidth = Math.min(window.innerWidth - 32, 1000);
-          const scale          = (containerWidth / viewport.width) * dpr;
+          const scale          = (containerWidth / viewport.width) * QUALITY;
           const scaled         = page.getViewport({ scale });
 
           const canvas         = document.createElement('canvas');
           canvas.className     = 'pdf-page';
           canvas.width         = scaled.width;
           canvas.height        = scaled.height;
-          // CSS size stays at display pixels — canvas data is dpr× larger
-          canvas.style.width   = (scaled.width  / dpr) + 'px';
-          canvas.style.height  = (scaled.height / dpr) + 'px';
+          canvas.style.width   = (scaled.width  / QUALITY) + 'px';
+          canvas.style.height  = (scaled.height / QUALITY) + 'px';
           container.appendChild(canvas);
 
           await page.render({
