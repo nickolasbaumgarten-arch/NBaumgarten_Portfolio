@@ -6,29 +6,50 @@
   <title>Nick Baumgarten — Architecture Portfolio</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a1a; }
-    iframe {
-      display: block;
-      width: 100%;
-      height: 100vh;
-      border: none;
-    }
-    .fallback {
-      display: none;
-      position: fixed;
-      inset: 0;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 16px;
+
+    body {
       background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #loading {
+      color: #aaa;
+      font-family: sans-serif;
+      font-size: 15px;
+      margin-top: 40vh;
+      letter-spacing: 0.04em;
+    }
+
+    #pdf-container {
+      width: 100%;
+      max-width: 1000px;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pdf-page {
+      width: 100%;
+      display: block;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    }
+
+    #error {
+      display: none;
       color: #ccc;
       font-family: sans-serif;
       text-align: center;
+      margin-top: 40vh;
       padding: 2rem;
     }
-    .fallback a {
+
+    #error a {
       display: inline-block;
+      margin-top: 16px;
       padding: 12px 28px;
       background: white;
       color: #111;
@@ -39,24 +60,56 @@
   </style>
 </head>
 <body>
-  <iframe
-    src="portfolio.pdf"
-    title="Nick Baumgarten Architecture Portfolio"
-    id="pdf-frame"
-  ></iframe>
 
-  <div class="fallback" id="fallback">
-    <p>Your browser couldn't display the PDF inline.</p>
-    <a href="portfolio.pdf" download>Download Portfolio PDF</a>
+  <div id="loading">Loading portfolio…</div>
+  <div id="pdf-container"></div>
+  <div id="error">
+    <p>Couldn't load the portfolio.</p>
+    <a href="portfolio.pdf" download>Download PDF instead</a>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
-    const frame = document.getElementById('pdf-frame');
-    const fallback = document.getElementById('fallback');
-    frame.onerror = function () {
-      frame.style.display = 'none';
-      fallback.style.display = 'flex';
-    };
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const container = document.getElementById('pdf-container');
+    const loading   = document.getElementById('loading');
+    const error     = document.getElementById('error');
+
+    async function renderPDF() {
+      try {
+        const pdf = await pdfjsLib.getDocument('portfolio.pdf').promise;
+        loading.style.display = 'none';
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page     = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 1 });
+
+          // Scale so page fills container width on any screen
+          const containerWidth = Math.min(window.innerWidth - 32, 1000);
+          const scale          = containerWidth / viewport.width;
+          const scaled         = page.getViewport({ scale });
+
+          const canvas    = document.createElement('canvas');
+          canvas.className = 'pdf-page';
+          canvas.width    = scaled.width;
+          canvas.height   = scaled.height;
+          container.appendChild(canvas);
+
+          await page.render({
+            canvasContext: canvas.getContext('2d'),
+            viewport: scaled
+          }).promise;
+        }
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display   = 'block';
+        console.error(err);
+      }
+    }
+
+    renderPDF();
   </script>
 </body>
 </html>
